@@ -10,7 +10,6 @@ export type UserDocument = HydratedDocument<User>;
     virtuals: true,
     transform: function (doc, ret: any) {
       delete ret.password;
-      delete ret.currentHashedRefreshToken;
       delete ret.__v;
 
       if (ret._id) {
@@ -43,9 +42,6 @@ export class User {
 
   @Prop({ required: true, select: false })
   password: string;
-
-  @Prop({ type: String, select: false, default: null })
-  currentHashedRefreshToken: string | null;
 
   @Prop({ required: true })
   firstName: string;
