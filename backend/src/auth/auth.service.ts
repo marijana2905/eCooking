@@ -10,9 +10,13 @@ import { StringValue } from 'ms';
 import * as bcrypt from 'bcrypt';
 
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { User, UserDocument } from 'src/users/schemas/user.schema';
+import {
+  RefreshToken,
+  RefreshTokenDocument,
+} from './schemas/refresh-token.schema';
 
 import { hashPassword } from 'src/common/security/password-hash';
 import { verifyPassword } from 'src/common/security/password-verification';
@@ -26,6 +30,8 @@ export class AuthService {
   constructor(
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
+    @InjectModel(RefreshToken.name)
+    private readonly refreshTokenModel: Model<RefreshTokenDocument>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
@@ -86,9 +92,15 @@ export class AuthService {
 
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
 
-    await this.userModel.updateOne(
+    await this.refreshTokenModel.updateOne(
+      { userId: user._id },
+      { hashedToken: hashedRefreshToken },
+      { upsert: true },
+    );
+
+    await this.userModel.collection.updateOne(
       { _id: user._id },
-      { currentHashedRefreshToken: hashedRefreshToken },
+      { $unset: { currentHashedRefreshToken: '' } },
     );
 
     return {
@@ -99,10 +111,8 @@ export class AuthService {
   }
 
   async logout(userId: string) {
-    return await this.userModel.updateOne(
-      { _id: userId },
-      { currentHashedRefreshToken: null },
-    );
+    const normalizedUserId = this.toObjectId(userId);
+    await this.refreshTokenModel.deleteOne({ userId: normalizedUserId });
   }
 
   async refresh(refreshToken?: string) {
@@ -118,17 +128,29 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    const user = await this.userModel
-      .findById(payload.sub)
-      .select('+currentHashedRefreshToken');
+    const normalizedUserId = this.toObjectId(payload.sub);
 
-    if (!user || !user.currentHashedRefreshToken) {
+    const [user, refreshTokenEntity] = await Promise.all([
+      this.userModel.findById(normalizedUserId),
+      this.refreshTokenModel
+        .findOne({ userId: normalizedUserId })
+        .select('+hashedToken')
+        .exec(),
+    ]);
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const refreshTokenHash = refreshTokenEntity?.hashedToken;
+
+    if (!refreshTokenHash) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
     const isRefreshTokenMatching = await bcrypt.compare(
       refreshToken,
-      user.currentHashedRefreshToken,
+      refreshTokenHash,
     );
 
     if (!isRefreshTokenMatching) {
@@ -142,10 +164,17 @@ export class AuthService {
     );
 
     const newHashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
-    await this.userModel.updateOne(
-      { _id: user._id },
-      { currentHashedRefreshToken: newHashedRefreshToken },
-    );
+    await Promise.all([
+      this.refreshTokenModel.updateOne(
+        { userId: user._id },
+        { hashedToken: newHashedRefreshToken },
+        { upsert: true },
+      ),
+      this.userModel.collection.updateOne(
+        { _id: user._id },
+        { $unset: { currentHashedRefreshToken: '' } },
+      ),
+    ]);
 
     return {
       accessToken: tokens.accessToken,
@@ -166,5 +195,13 @@ export class AuthService {
     ]);
 
     return { accessToken, refreshToken };
+  }
+
+  private toObjectId(userId: string): Types.ObjectId {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    return new Types.ObjectId(userId);
   }
 }

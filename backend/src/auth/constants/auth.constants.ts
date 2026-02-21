@@ -1,3 +1,3 @@
 export const AUTH_COOKIES = {
-  REFRESH_TOKEN: 'vt_refresh',
+  REFRESH_TOKEN: 'refresh-token',
 } as const;
