@@ -1,6 +1,30 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 
+export enum RecipeCategory {
+  BREAKFAST = 'Breakfast',
+  LUNCH = 'Lunch',
+  DINNER = 'Dinner',
+  DESSERT = 'Dessert',
+  SNACK = 'Snack',
+  APPETIZER = 'Appetizer',
+
+  VEGAN = 'Vegan',
+  VEGETARIAN = 'Vegetarian',
+  GLUTEN_FREE = 'Gluten-Free',
+  DAIRY_FREE = 'Dairy-Free',
+  LENTEN = 'Lenten',
+  KETO = 'Keto',
+  LOW_CARB = 'Low-Carb',
+
+  MEDITERRANEAN = 'Mediterranean',
+  ITALIAN = 'Italian',
+  MEXICAN = 'Mexican',
+  ASIAN = 'Asian',
+  MIDDLE_EASTERN = 'Middle Eastern',
+  FRENCH = 'French',
+}
+
 export type RecipeDocument = HydratedDocument<Recipe>;
 
 @Schema({
@@ -32,8 +56,13 @@ export class Recipe {
   @Prop({ type: [String], required: true })
   instructions: string[];
 
-  @Prop({ required: true })
-  category: string;
+  @Prop({
+    type: [String],
+    enum: Object.values(RecipeCategory),
+    required: true,
+    default: [],
+  })
+  categories: RecipeCategory[];
 
   @Prop({ required: true })
   prepTime: number;
