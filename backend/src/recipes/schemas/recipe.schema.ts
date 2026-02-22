@@ -6,7 +6,10 @@ export type RecipeDocument = HydratedDocument<Recipe>;
 @Schema({
   timestamps: true,
   toJSON: {
-    transform: function (doc, ret: any) {
+    transform: function (
+      _,
+      ret: { _id?: Types.ObjectId; id?: string; __v?: unknown },
+    ) {
       delete ret.__v;
       if (ret._id) {
         ret.id = ret._id.toString();

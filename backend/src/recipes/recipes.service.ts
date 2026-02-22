@@ -3,58 +3,65 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import { Types } from 'mongoose';
-import { CreateRecipeQuery } from './queries/create-recipe.query';
-import { FindRecipeByIdQuery } from './queries/find-recipe-by-id.query';
-import { DeleteRecipeQuery } from './queries/delete-recipe.query';
-import { UpdateRecipeQuery } from './queries/update-recipe.query';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+
+import { Recipe, RecipeDocument } from './schemas/recipe.schema';
+
+import { CreateRecipeDto } from './dto/create-recipe.dto';
+import { UpdateRecipeDto } from './dto/update-recipe.dto';
 
 @Injectable()
 export class RecipesService {
   constructor(
-    private readonly createQuery: CreateRecipeQuery,
-    private readonly findByIdQuery: FindRecipeByIdQuery,
-    private readonly deleteQuery: DeleteRecipeQuery,
-    private readonly updateQuery: UpdateRecipeQuery,
+    @InjectModel(Recipe.name)
+    private readonly recipeModel: Model<RecipeDocument>,
   ) {}
 
-  async create(dto: any, userId: string) {
-    const recipeData = {
+  async create(dto: CreateRecipeDto, currentUserId: string) {
+    const saved = await this.recipeModel.create({
       ...dto,
-      author: new Types.ObjectId(userId),
-    };
-    return this.createQuery.execute(recipeData);
+      author: new Types.ObjectId(currentUserId),
+    });
+
+    return saved.toJSON();
   }
 
-  async remove(recipeId: string, userId: string) {
-    const recipe = await this.findByIdQuery.execute(recipeId);
+  async remove(recipeId: string, currentUserId: string) {
+    const recipe = await this.recipeModel.findById(recipeId);
 
     if (!recipe) {
-      throw new NotFoundException('Recept nije pronađen');
+      throw new NotFoundException('Recipe not found');
     }
 
-    if (recipe.author['_id'].toString() !== userId) {
-      throw new ForbiddenException('Možete brisati samo svoje recepte!');
+    if (recipe.author.toString() !== currentUserId) {
+      throw new ForbiddenException('You can only delete your own recipes');
     }
 
-    await this.deleteQuery.execute(recipeId);
+    const deleted = await this.recipeModel.findByIdAndDelete(recipeId);
 
-    return {
-      success: true,
-      message: `Recept "${recipe.title}" je uspešno obrisan.`,
-    };
+    return deleted?.toJSON() ?? null;
   }
-  async update(recipeId: string, dto: any, userId: string) {
-    const recipe = await this.findByIdQuery.execute(recipeId);
+
+  async update(recipeId: string, dto: UpdateRecipeDto, currentUserId: string) {
+    const recipe = await this.recipeModel.findById(recipeId).select('author');
 
     if (!recipe) {
-      throw new NotFoundException('Recept nije pronađen');
+      throw new NotFoundException('Recipe not found');
     }
 
-    if (recipe.author['_id'].toString() !== userId) {
-      throw new ForbiddenException('Možete menjati samo svoje recepte!');
+    if (recipe.author.toString() !== currentUserId) {
+      throw new ForbiddenException('You can only update your own recipes');
     }
 
-    return await this.updateQuery.execute(recipeId, dto);
+    const updated = await this.recipeModel
+      .findByIdAndUpdate(
+        recipeId,
+        { $set: dto },
+        { new: true, runValidators: true },
+      )
+      .populate('author');
+
+    return updated?.toJSON() ?? null;
   }
 }
