@@ -1,9 +1,9 @@
-import CurrentUserAvatar from '@/components/common/CurrentUserAvatar';
+//import CurrentUserAvatar from '@/components/common/CurrentUserAvatar';
 
 const HomePage = () => {
   return (
     <div className="w-fit p-8">
-      <CurrentUserAvatar />
+      <h1 className="text-3xl font-bold">Welcome to eCooking!</h1>
     </div>
   );
 };
