@@ -3,11 +3,11 @@ type LogoProps = {
   className?: string;
 };
 
-const Logo = ({ size = 32, className }: LogoProps) => {
+const Logo = ({ size = 40, className }: LogoProps) => {
   return (
     <img
-      src="/images/logo_v1.png"
-      alt="VolonTweet Logo"
+      src="/images/eCookingLogo.png"
+      alt="eCooking Logo"
       className={className}
       width={size}
       height={size}
