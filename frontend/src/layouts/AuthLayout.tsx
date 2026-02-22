@@ -16,7 +16,7 @@ const AuthLayout = () => {
     <div className="flex min-h-screen w-full flex-col items-center justify-between">
       <header className="flex w-full items-center justify-center border-b">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4">
-          <Logo size={90} />
+          <Logo size={120} />
           <ThemeToggle />
         </div>
       </header>
