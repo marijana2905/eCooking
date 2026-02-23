@@ -6,11 +6,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 
-import {
-  Recipe,
-  RecipeDocument,
-  RecipeCategory,
-} from './schemas/recipe.schema';
+import { Recipe, RecipeDocument } from './schemas/recipe.schema';
+
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 
@@ -21,21 +18,15 @@ export class RecipesService {
     private readonly recipeModel: Model<RecipeDocument>,
   ) {}
 
-  async findAll(category?: RecipeCategory) {
-    const query = category ? { categories: category } : {};
-
-    return this.recipeModel
-      .find(query)
-      .populate('author', 'username email')
-      .sort({ createdAt: -1 })
-      .exec();
-  }
-
   async findOne(id: string) {
     const recipe = await this.recipeModel
       .findById(id)
       .populate('author', 'username');
-    if (!recipe) throw new NotFoundException('Recipe not found');
+
+    if (!recipe) {
+      throw new NotFoundException('Recipe not found');
+    }
+
     return recipe;
   }
 
@@ -82,6 +73,7 @@ export class RecipesService {
     }
 
     const deleted = await this.recipeModel.findByIdAndDelete(recipeId);
+
     return deleted?.toJSON() ?? null;
   }
 }

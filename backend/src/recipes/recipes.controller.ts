@@ -20,11 +20,6 @@ import { RecipeCategory } from './schemas/recipe.schema';
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
 
-  @Get()
-  async findAll(@Query('category') category?: RecipeCategory) {
-    return this.recipesService.findAll(category);
-  }
-
   @Post()
   async create(@Req() req: Request, @Body() dto: CreateRecipeDto) {
     const user = req['user'] as JwtPayload;

@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+
 import { User, UserDocument } from './schemas/user.schema';
+
 import { UpdateUserDto } from './schemas/dto/update-user.dto';
 
 @Injectable()
@@ -15,7 +17,10 @@ export class UsersService {
       { new: true, runValidators: true },
     );
 
-    if (!updated) throw new NotFoundException('User is not found');
+    if (!updated) {
+      throw new NotFoundException('User is not found');
+    }
+
     return updated.toJSON();
   }
 }

@@ -39,6 +39,7 @@ export type RecipeDocument = HydratedDocument<Recipe>;
         ret.id = ret._id.toString();
         delete ret._id;
       }
+
       return ret;
     },
   },
