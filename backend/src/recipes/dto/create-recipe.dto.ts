@@ -1,12 +1,14 @@
 import {
   ArrayMinSize,
   IsArray,
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
   Min,
 } from 'class-validator';
+import { RecipeCategory } from '../schemas/recipe.schema';
 
 export class CreateRecipeDto {
   @IsString()
@@ -27,9 +29,9 @@ export class CreateRecipeDto {
   @IsString({ each: true })
   instructions: string[];
 
-  @IsString()
-  @IsNotEmpty()
-  category: string;
+  @IsArray()
+  @IsEnum(RecipeCategory, { each: true })
+  categories: RecipeCategory[];
 
   @IsInt()
   @Min(1)

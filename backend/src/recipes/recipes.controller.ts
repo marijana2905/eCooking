@@ -6,20 +6,24 @@ import {
   Req,
   Param,
   Patch,
+  Get,
 } from '@nestjs/common';
 
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
-
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
-
 import { RecipesService } from './recipes.service';
 
 @Controller('recipes')
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
 
-  // TODO: Add pagination, filtering, and sorting to the GET endpoint for displaying on home page
+  // TODO: pagination, filtering, sorting
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return this.recipesService.findOne(id);
+  }
 
   @Post()
   async create(@Req() req: Request, @Body() dto: CreateRecipeDto) {
