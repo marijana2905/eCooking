@@ -152,4 +152,41 @@ export class RecipesService {
 
     return deleted?.toJSON() ?? null;
   }
+
+  async toggleLike(recipeId: string, userId: string) {
+    const recipe = await this.recipeModel.findById(recipeId).select('likes');
+
+    if (!recipe) {
+      throw new NotFoundException('Recipe not found');
+    }
+
+    const userObjectId = new Types.ObjectId(userId);
+
+    const alreadyLiked = recipe.likes.some(
+      (id) => id.toString() === userId,
+    );
+
+    let updatedRecipe;
+
+    if (alreadyLiked) {
+      // UNLIKE
+      updatedRecipe = await this.recipeModel.findByIdAndUpdate(
+        recipeId,
+        { $pull: { likes: userObjectId } },
+        { returnDocument: 'after' },
+      );
+    } else {
+      // LIKE
+      updatedRecipe = await this.recipeModel.findByIdAndUpdate(
+        recipeId,
+        { $addToSet: { likes: userObjectId } },
+        { returnDocument: 'after' },
+      );
+    }
+
+    return {
+      liked: !alreadyLiked,
+      likesCount: updatedRecipe?.likes.length ?? 0,
+    };
+  }
 }

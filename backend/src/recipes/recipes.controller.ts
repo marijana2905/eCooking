@@ -14,21 +14,18 @@ import {
 import { ImageUploadInterceptor } from 'src/common/interceptors/image-upload.interceptor';
 
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
+
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 
 import { RecipesService } from './recipes.service';
+import { JwtGlobalModule } from 'src/jwt/jwt.module';
 
 @Controller('recipes')
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
 
-  // TODO: pagination, filtering, sorting
-
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.recipesService.findOne(id);
-  }
+  // TODO: Add pagination, filtering, and sorting to the GET endpoint for displaying on home page
 
   @Post()
   @UseInterceptors(ImageUploadInterceptor())
@@ -57,5 +54,12 @@ export class RecipesController {
   ) {
     const user = req['user'] as JwtPayload;
     return this.recipesService.update(id, dto, user.sub, image);
+  }
+
+  
+  @Patch(':id/like')
+  async toggleLike(@Req() req: Request, @Param('id') id: string) {
+    const user = req['user'] as JwtPayload;
+    return this.recipesService.toggleLike(id, user.sub);
   }
 }
