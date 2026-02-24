@@ -23,4 +23,13 @@ export class UsersService {
 
     return updated.toJSON();
   }
+  async findById(id: string) {
+    const user = await this.userModel.findById(id);
+    
+    if (!user) {
+      throw new NotFoundException('User with this ID does not exist');
+    }
+
+    return user.toJSON(); 
+  }
 }

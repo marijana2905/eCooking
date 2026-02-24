@@ -27,7 +27,7 @@ export class RecipesService {
       throw new NotFoundException('Recipe not found');
     }
 
-    return recipe;
+    return recipe.toJSON();
   }
 
   async create(dto: CreateRecipeDto, currentUserId: string) {
