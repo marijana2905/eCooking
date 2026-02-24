@@ -6,6 +6,7 @@ import { JwtGlobalModule } from './jwt/jwt.module';
 import { AuthModule } from './auth/auth.module';
 import { RecipesModule } from './recipes/recipes.module';
 import { UsersModule } from './users/users.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     RecipesModule,
     UsersModule,
+    CloudinaryModule,
   ],
 })
 export class AppModule {}

@@ -33,13 +33,9 @@ export class CreateRecipeDto {
   @IsEnum(RecipeCategory, { each: true })
   categories: RecipeCategory[];
 
-  @IsInt()
-  @Min(1)
-  prepTime: number;
-
-  @IsOptional()
+  // prepTime in minutes (convert to number in service layer)
   @IsString()
-  imageUrl?: string;
+  prepTime: string;
 
   @IsOptional()
   @IsArray()
