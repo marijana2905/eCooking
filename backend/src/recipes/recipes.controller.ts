@@ -7,11 +7,16 @@ import {
   Param,
   Patch,
   Get,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+
+import { ImageUploadInterceptor } from 'src/common/interceptors/image-upload.interceptor';
 
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
+
 import { RecipesService } from './recipes.service';
 
 @Controller('recipes')
@@ -26,9 +31,14 @@ export class RecipesController {
   }
 
   @Post()
-  async create(@Req() req: Request, @Body() dto: CreateRecipeDto) {
+  @UseInterceptors(ImageUploadInterceptor())
+  async create(
+    @Req() req: Request,
+    @Body() dto: CreateRecipeDto,
+    @UploadedFile() image?: Express.Multer.File,
+  ) {
     const user = req['user'] as JwtPayload;
-    return this.recipesService.create(dto, user.sub);
+    return this.recipesService.create(dto, user.sub, image);
   }
 
   @Delete(':id')
@@ -38,12 +48,14 @@ export class RecipesController {
   }
 
   @Patch(':id')
+  @UseInterceptors(ImageUploadInterceptor())
   async update(
     @Req() req: Request,
     @Param('id') id: string,
     @Body() dto: UpdateRecipeDto,
+    @UploadedFile() image?: Express.Multer.File,
   ) {
     const user = req['user'] as JwtPayload;
-    return this.recipesService.update(id, dto, user.sub);
+    return this.recipesService.update(id, dto, user.sub, image);
   }
 }
