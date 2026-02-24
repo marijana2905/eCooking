@@ -7,18 +7,18 @@ import {
   Param,
   Patch,
   Get,
-  Query,
 } from '@nestjs/common';
 
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { RecipesService } from './recipes.service';
-import { RecipeCategory } from './schemas/recipe.schema';
 
 @Controller('recipes')
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
+
+  // TODO: pagination, filtering, sorting
 
   @Get(':id')
   async findOne(@Param('id') id: string) {

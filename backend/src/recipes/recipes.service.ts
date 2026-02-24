@@ -19,9 +19,7 @@ export class RecipesService {
   ) {}
 
   async findOne(id: string) {
-    const recipe = await this.recipeModel
-      .findById(id)
-      .populate('author', 'username');
+    const recipe = await this.recipeModel.findById(id).populate('author');
 
     if (!recipe) {
       throw new NotFoundException('Recipe not found');
