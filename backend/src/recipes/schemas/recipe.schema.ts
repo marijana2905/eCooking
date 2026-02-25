@@ -76,6 +76,9 @@ export class Recipe {
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   author: Types.ObjectId;
+
+  @Prop({ type: [Types.ObjectId], ref: 'User', default: [] })
+  likes: Types.ObjectId[];
 }
 
 export const RecipeSchema = SchemaFactory.createForClass(Recipe);
