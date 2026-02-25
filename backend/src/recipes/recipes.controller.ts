@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Get,
+  Query,
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
@@ -17,15 +18,25 @@ import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
+import { FindAllRecipesDto } from './dto/find-all-recipes.dto';
 
 import { RecipesService } from './recipes.service';
-import { JwtGlobalModule } from 'src/jwt/jwt.module';
 
 @Controller('recipes')
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
 
-  // TODO: Add pagination, filtering, and sorting to the GET endpoint for displaying on home page
+  @Get()
+  async findAll(@Req() req: Request, @Query() query: FindAllRecipesDto) {
+    const user = req['user'] as JwtPayload;
+    return this.recipesService.findAll(query, user.sub);
+  }
+
+  @Get(':id')
+  async findOne(@Req() req: Request, @Param('id') id: string) {
+    const user = req['user'] as JwtPayload;
+    return this.recipesService.findOne(id, user.sub);
+  }
 
   @Post()
   @UseInterceptors(ImageUploadInterceptor())
@@ -56,7 +67,6 @@ export class RecipesController {
     return this.recipesService.update(id, dto, user.sub, image);
   }
 
-  
   @Patch(':id/like')
   async toggleLike(@Req() req: Request, @Param('id') id: string) {
     const user = req['user'] as JwtPayload;

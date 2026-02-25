@@ -13,8 +13,12 @@ import { CLOUDINARY_RECIPES_FOLDER } from 'src/cloudinary/constants';
 
 import { Recipe, RecipeDocument } from './schemas/recipe.schema';
 
+import { PaginatedResponse } from 'src/common/interfaces/paginated-response.interface';
+
+import { FindAllRecipesDto } from './dto/find-all-recipes.dto';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
+import { RecipeResponseDto } from './dto/recipe-response.dto';
 
 @Injectable()
 export class RecipesService {
@@ -26,14 +30,71 @@ export class RecipesService {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async findOne(id: string) {
+  async findAll(
+    query: FindAllRecipesDto,
+    currentUserId: string,
+  ): Promise<PaginatedResponse<RecipeResponseDto>> {
+    const { page = 1, pageSize = 10, search, category } = query;
+
+    const filter: any = {};
+
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    if (category) {
+      filter.categories = category;
+    }
+
+    const skip = (page - 1) * pageSize;
+
+    const [data, total] = await Promise.all([
+      this.recipeModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(pageSize)
+        .populate('author')
+        .exec(),
+      this.recipeModel.countDocuments(filter).exec(),
+    ]);
+
+    const mappedData: RecipeResponseDto[] = data.map((recipe) => {
+      const isLiked = recipe.likes.some(
+        (id) => id.toString() === currentUserId,
+      );
+
+      const { likes, ...json } = recipe.toJSON() as unknown as Omit<
+        RecipeResponseDto,
+        'isLiked'
+      > & { likes: unknown };
+
+      return { ...json, isLiked };
+    });
+
+    return {
+      data: mappedData,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    };
+  }
+
+  async findOne(id: string, currentUserId: string) {
     const recipe = await this.recipeModel.findById(id).populate('author');
 
     if (!recipe) {
       throw new NotFoundException('Recipe not found');
     }
 
-    return recipe.toJSON();
+    const isLiked = recipe.likes.some((id) => id.toString() === currentUserId);
+    const { likes, ...json } = recipe.toJSON() as any;
+
+    return { ...json, isLiked };
   }
 
   async create(
@@ -162,9 +223,7 @@ export class RecipesService {
 
     const userObjectId = new Types.ObjectId(userId);
 
-    const alreadyLiked = recipe.likes.some(
-      (id) => id.toString() === userId,
-    );
+    const alreadyLiked = recipe.likes.some((id) => id.toString() === userId);
 
     let updatedRecipe;
 
