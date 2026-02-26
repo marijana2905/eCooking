@@ -12,6 +12,7 @@ import BlockUI from '@/components/common/ui-states/BlockUI';
 import SearchInput from '@/components/common/SearchInput';
 import PaginationBar from '@/components/common/PaginationBar';
 import RecipeCard from '@/components/recipes/RecipeCard';
+import CategoryFilters from './components/CategoryFilters';
 
 const HomePage = () => {
   const { getSearchParam, setSearchParam, removeSearchParam } =
@@ -46,6 +47,8 @@ const HomePage = () => {
         }}
         onDebouncedChange={(value) => setDebounceSearchTerm(value)}
       />
+
+      <CategoryFilters />
 
       <BlockUI
         isLoading={isLoading}
