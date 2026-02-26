@@ -3,7 +3,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { MoreHorizontalIcon, UserIcon } from '@hugeicons/core-free-icons';
 
 import { useAuthUser } from '@/stores/auth.store';
-import { getAvatarFallback, getUserFullName } from '@/lib/utils';
+import { getAvatarFallback } from '@/lib/utils';
 
 import { APP_ROUTES } from '@/config/appRoutes';
 
@@ -27,15 +27,13 @@ const CurrentUserAvatar = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="hover:bg-muted dark:hover:bg-muted/50 flex min-w-0 items-center gap-2 overflow-hidden rounded-md p-2 transition-colors">
-        <Avatar className="relative size-9 shrink-0">
+        <Avatar className="relative size-8 shrink-0">
           <AvatarImage src={user.avatarUrl} />
           <AvatarFallback>{getAvatarFallback(user)}</AvatarFallback>
         </Avatar>
 
-        <div className="hidden min-w-0 flex-1 flex-col text-left text-sm md:flex">
-          <span className="truncate font-semibold">
-            {getUserFullName(user)}
-          </span>
+        <div className="hidden min-w-0 flex-1 flex-col text-left text-xs md:flex">
+          <span className="truncate font-semibold">{user.fullName}</span>
           <span className="text-muted-foreground truncate">{`@${user.username}`}</span>
         </div>
 
