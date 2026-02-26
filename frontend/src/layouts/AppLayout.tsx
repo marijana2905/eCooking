@@ -1,23 +1,18 @@
 import { Outlet } from 'react-router-dom';
-import LeftSidebar from '@/components/common/LeftSidebar';
-import MobileNavbar from '@/components/common/MobileNavbar';
+
+import Navbar from './components/Navbar';
+import FooterBasic from './components/FooterBasic';
 
 const AppLayout = () => {
   return (
-    <div className="relative flex min-h-screen w-full">
-      <aside className="bg-background fixed top-0 left-0 hidden h-screen w-64 border-r md:block">
-        <LeftSidebar />
-      </aside>
+    <div className="flex h-full min-h-screen flex-col">
+      <Navbar />
 
-      <main className="flex-1 md:pl-64">
-        <div className="container mx-auto max-w-5xl px-4 py-6 pb-24 md:pb-6">
-          <Outlet />
-        </div>
+      <main className="mx-auto max-w-6xl flex-1 p-4">
+        <Outlet />
       </main>
 
-      <div className="md:hidden">
-        <MobileNavbar />
-      </div>
+      <FooterBasic />
     </div>
   );
 };

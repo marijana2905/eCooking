@@ -1,10 +1,10 @@
-//import CurrentUserAvatar from '@/components/common/CurrentUserAvatar';
+import H1 from '@/components/ui/typography/H1';
 
 const HomePage = () => {
   return (
-    <div className="w-fit p-8">
-      <h1 className="text-3xl font-bold">Welcome to eCooking!</h1>
-    </div>
+    <>
+      <H1>Welcome to eCooking!</H1>
+    </>
   );
 };
 
