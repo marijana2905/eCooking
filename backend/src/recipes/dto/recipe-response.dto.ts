@@ -12,6 +12,7 @@ export class RecipeResponseDto {
   imageUrl: string;
   tags: string[];
   author: RecipeAuthorResponseDto;
+  numOfLikes: number;
   isLiked: boolean;
   createdAt: Date;
   updatedAt: Date;

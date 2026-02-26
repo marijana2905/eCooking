@@ -67,12 +67,9 @@ export class RecipesService {
         (id) => id.toString() === currentUserId,
       );
 
-      const { likes, ...json } = recipe.toJSON() as unknown as Omit<
-        RecipeResponseDto,
-        'isLiked'
-      > & { likes: unknown };
+      const { likes, ...json } = recipe.toJSON() as any;
 
-      return { ...json, isLiked };
+      return { ...json, isLiked, numOfLikes: likes.length };
     });
 
     return {
@@ -109,7 +106,7 @@ export class RecipesService {
 
     const mappedData: RecipeResponseDto[] = data.map((recipe) => {
       const { likes, ...json } = recipe.toJSON() as any;
-      return { ...json, isLiked: true };
+      return { ...json, isLiked: true, numOfLikes: likes.length };
     });
 
     return {
@@ -130,7 +127,7 @@ export class RecipesService {
     const isLiked = recipe.likes.some((id) => id.toString() === currentUserId);
     const { likes, ...json } = recipe.toJSON() as any;
 
-    return { ...json, isLiked };
+    return { ...json, isLiked, numOfLikes: likes.length };
   }
 
   async create(

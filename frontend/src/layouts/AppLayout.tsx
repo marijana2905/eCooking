@@ -1,18 +1,15 @@
 import { Outlet } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
-import FooterBasic from './components/FooterBasic';
 
 const AppLayout = () => {
   return (
-    <div className="flex h-full min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col">
       <Navbar />
 
-      <main className="mx-auto max-w-6xl flex-1 p-4">
+      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col p-4">
         <Outlet />
       </main>
-
-      <FooterBasic />
     </div>
   );
 };

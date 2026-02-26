@@ -6,4 +6,6 @@ export const API_ENDPOINTS = {
 
   RECIPES: '/recipes', // paginted with search and filter for category
   RECIPE_DETAILS: (recipeId: string) => `/recipes/${recipeId}`,
+
+  CATEGORIES: '/recipes/categories',
 };

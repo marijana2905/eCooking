@@ -19,6 +19,7 @@ import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { FindAllRecipesDto } from './dto/find-all-recipes.dto';
+import { RecipeCategory } from './schemas/recipe.schema';
 
 import { RecipesService } from './recipes.service';
 
@@ -30,6 +31,11 @@ export class RecipesController {
   async findAll(@Req() req: Request, @Query() query: FindAllRecipesDto) {
     const user = req['user'] as JwtPayload;
     return this.recipesService.findAll(query, user.sub);
+  }
+
+  @Get('categories')
+  getCategories(): string[] {
+    return Object.values(RecipeCategory);
   }
 
   @Get(':id')
