@@ -19,7 +19,7 @@ import { FindAllRecipesDto } from './dto/find-all-recipes.dto';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { RecipeResponseDto } from './dto/recipe-response.dto';
-
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 @Injectable()
 export class RecipesService {
   private readonly logger = new Logger(RecipesService.name);
@@ -84,6 +84,42 @@ export class RecipesService {
     };
   }
 
+  async findLikedRecipes(
+    query: PaginationQueryDto,
+    currentUserId: string,
+  ): Promise<PaginatedResponse<RecipeResponseDto>> {
+    const { page = 1, pageSize = 10 } = query;
+
+    const filter = {
+      likes: new Types.ObjectId(currentUserId),
+    };
+
+    const skip = (page - 1) * pageSize;
+
+    const [data, total] = await Promise.all([
+      this.recipeModel
+        .find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(pageSize)
+        .populate('author')
+        .exec(),
+      this.recipeModel.countDocuments(filter).exec(),
+    ]);
+
+    const mappedData: RecipeResponseDto[] = data.map((recipe) => {
+      const { likes, ...json } = recipe.toJSON() as any;
+      return { ...json, isLiked: true };
+    });
+
+    return {
+      data: mappedData,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    };
+  }
   async findOne(id: string, currentUserId: string) {
     const recipe = await this.recipeModel.findById(id).populate('author');
 
