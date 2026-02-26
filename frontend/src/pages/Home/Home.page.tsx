@@ -13,6 +13,11 @@ import SearchInput from '@/components/common/SearchInput';
 import PaginationBar from '@/components/common/PaginationBar';
 import RecipeCard from '@/components/recipes/RecipeCard';
 import CategoryFilters from './components/CategoryFilters';
+import { Button } from '@/components/ui/button';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Add01Icon } from '@hugeicons/core-free-icons';
+import { Link } from 'react-router-dom';
+import { APP_ROUTES } from '@/config/appRoutes';
 
 const HomePage = () => {
   const { getSearchParam, setSearchParam, removeSearchParam } =
@@ -37,16 +42,26 @@ const HomePage = () => {
 
   return (
     <div className="flex h-full flex-col gap-4">
-      <SearchInput
-        className="sm:w-xs"
-        debounceDelay={300}
-        defaultValue={getSearchParam(SEARCH_PARAMS.SEARCH) || ''}
-        onValueChange={(value) => {
-          if (value === '') removeSearchParam(SEARCH_PARAMS.SEARCH);
-          else setSearchParam(SEARCH_PARAMS.SEARCH, value);
-        }}
-        onDebouncedChange={(value) => setDebounceSearchTerm(value)}
-      />
+      <div className="flex items-center justify-between gap-4">
+        <SearchInput
+          className="sm:w-xs"
+          debounceDelay={300}
+          defaultValue={getSearchParam(SEARCH_PARAMS.SEARCH) || ''}
+          onValueChange={(value) => {
+            if (value === '') removeSearchParam(SEARCH_PARAMS.SEARCH);
+            else setSearchParam(SEARCH_PARAMS.SEARCH, value);
+          }}
+          onDebouncedChange={(value) => setDebounceSearchTerm(value)}
+        />
+
+        <Button
+          render={<Link to={APP_ROUTES.ADD_RECIPE} />}
+          nativeButton={false}
+        >
+          <HugeiconsIcon icon={Add01Icon} />
+          Add Recipe
+        </Button>
+      </div>
 
       <CategoryFilters />
 
