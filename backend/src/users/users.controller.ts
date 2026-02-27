@@ -37,6 +37,12 @@ export class UsersController {
     return this.recipesService.findLikedRecipes(query, user.sub);
   }
 
+  @Get('me/recipes')
+  async getMyRecipes(@Req() req: Request, @Query() query: PaginationQueryDto) {
+    const user = req['user'] as JwtPayload;
+    return this.recipesService.findMyRecipes(query, user.sub);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.usersService.findById(id);
