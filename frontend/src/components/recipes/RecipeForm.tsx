@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useFieldArray, useForm, type Resolver } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -13,7 +13,12 @@ import { API_ENDPOINTS } from '@/config/endpoints';
 
 import { recipeSchema, type RecipeSchemaType } from './schema/recipe.schema';
 
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -65,25 +70,30 @@ const RecipeForm = ({
     },
   });
 
-  const {
-    fields: ingredientFields,
-    append: appendIngredient,
-    remove: removeIngredient,
-  } = useFieldArray({
-    control: form.control,
-    // @ts-expect-error - react-hook-form string array workaround
-    name: 'ingredients',
-  });
+  const ingredients = form.watch('ingredients');
+  const instructions = form.watch('instructions');
 
-  const {
-    fields: instructionFields,
-    append: appendInstruction,
-    remove: removeInstruction,
-  } = useFieldArray({
-    control: form.control,
-    // @ts-expect-error - react-hook-form string array workaround
-    name: 'instructions',
-  });
+  const appendIngredient = () =>
+    form.setValue('ingredients', [...ingredients, ''], {
+      shouldValidate: form.formState.isSubmitted,
+    });
+  const removeIngredient = (index: number) =>
+    form.setValue(
+      'ingredients',
+      ingredients.filter((_, i) => i !== index),
+      { shouldValidate: form.formState.isSubmitted },
+    );
+
+  const appendInstruction = () =>
+    form.setValue('instructions', [...instructions, ''], {
+      shouldValidate: form.formState.isSubmitted,
+    });
+  const removeInstruction = (index: number) =>
+    form.setValue(
+      'instructions',
+      instructions.filter((_, i) => i !== index),
+      { shouldValidate: form.formState.isSubmitted },
+    );
 
   const { data: categories = [] } = useQuery<string[]>({
     queryKey: [API_ENDPOINTS.CATEGORIES],
@@ -163,14 +173,20 @@ const RecipeForm = ({
         <Field>
           <FieldLabel>Ingredients</FieldLabel>
           <div className="flex flex-col gap-2">
-            {ingredientFields.map((field, index) => (
-              <div key={field.id} className="flex items-center gap-2">
+            {ingredients.map((_, index) => (
+              <div key={index} className="flex flex-col gap-1">
                 <InputGroup>
                   <InputGroupInput
-                    {...form.register(`ingredients.${index}`)}
+                    {...form.register(`ingredients.${index}`, {
+                      onChange: () => {
+                        if (form.formState.isSubmitted)
+                          form.trigger('ingredients');
+                      },
+                    })}
                     placeholder={`Ingredient ${index + 1}`}
+                    aria-invalid={!!form.formState.errors.ingredients?.[index]}
                   />
-                  {ingredientFields.length > 1 && (
+                  {ingredients.length > 1 && (
                     <InputGroupAddon align="inline-end">
                       <Button
                         type="button"
@@ -183,19 +199,28 @@ const RecipeForm = ({
                     </InputGroupAddon>
                   )}
                 </InputGroup>
+                {form.formState.errors.ingredients?.[index]?.message && (
+                  <p className="text-destructive text-sm">
+                    {form.formState.errors.ingredients[index].message}
+                  </p>
+                )}
               </div>
             ))}
-            {form.formState.errors.ingredients?.message && (
-              <p className="text-destructive text-sm">
-                {form.formState.errors.ingredients.message}
-              </p>
-            )}
           </div>
+          <FieldError
+            errors={
+              form.formState.errors.ingredients?.root
+                ? [form.formState.errors.ingredients.root]
+                : form.formState.errors.ingredients?.message
+                  ? [{ message: form.formState.errors.ingredients.message }]
+                  : undefined
+            }
+          />
           <div>
             <Button
               type="button"
               variant="outline"
-              onClick={() => appendIngredient('' as never)}
+              onClick={() => appendIngredient()}
             >
               <HugeiconsIcon icon={Add01Icon} size={16} />
               Add Ingredient
@@ -207,41 +232,60 @@ const RecipeForm = ({
         <Field>
           <FieldLabel>Instructions</FieldLabel>
           <div className="flex flex-col gap-2">
-            {instructionFields.map((field, index) => (
-              <div key={field.id} className="flex items-center gap-2">
-                <span className="text-muted-foreground">{index + 1}.</span>
-                <InputGroup>
-                  <InputGroupInput
-                    {...form.register(`instructions.${index}`)}
-                    placeholder={`Step ${index + 1}`}
-                  />
-                  {instructionFields.length > 1 && (
-                    <InputGroupAddon align="inline-end">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => removeInstruction(index)}
-                      >
-                        <HugeiconsIcon icon={Cancel01Icon} />
-                      </Button>
-                    </InputGroupAddon>
-                  )}
-                </InputGroup>
+            {instructions.map((_, index) => (
+              <div key={index} className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">{index + 1}.</span>
+                  <InputGroup>
+                    <InputGroupInput
+                      {...form.register(`instructions.${index}`, {
+                        onChange: () => {
+                          if (form.formState.isSubmitted)
+                            form.trigger('instructions');
+                        },
+                      })}
+                      placeholder={`Step ${index + 1}`}
+                      aria-invalid={
+                        !!form.formState.errors.instructions?.[index]
+                      }
+                    />
+                    {instructions.length > 1 && (
+                      <InputGroupAddon align="inline-end">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => removeInstruction(index)}
+                        >
+                          <HugeiconsIcon icon={Cancel01Icon} />
+                        </Button>
+                      </InputGroupAddon>
+                    )}
+                  </InputGroup>
+                </div>
+                {form.formState.errors.instructions?.[index]?.message && (
+                  <p className="text-destructive pl-6 text-sm">
+                    {form.formState.errors.instructions[index].message}
+                  </p>
+                )}
               </div>
             ))}
-            {form.formState.errors.instructions?.message && (
-              <p className="text-destructive text-sm">
-                {form.formState.errors.instructions.message}
-              </p>
-            )}
           </div>
+          <FieldError
+            errors={
+              form.formState.errors.instructions?.root
+                ? [form.formState.errors.instructions.root]
+                : form.formState.errors.instructions?.message
+                  ? [{ message: form.formState.errors.instructions.message }]
+                  : undefined
+            }
+          />
           <div className="w-fit">
             <Button
               type="button"
               variant="outline"
               className="w-fit"
-              onClick={() => appendInstruction('' as never)}
+              onClick={() => appendInstruction()}
             >
               <HugeiconsIcon icon={Add01Icon} />
               Add Step

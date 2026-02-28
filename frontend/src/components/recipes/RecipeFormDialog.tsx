@@ -89,7 +89,7 @@ const RecipeFormDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="-mx-6 max-h-[70vh]">
+        <ScrollArea className="-mx-6 max-h-[70vh]" tabIndex={-1}>
           <div className="mx-6">
             {isEdit && isLoadingRecipe && (
               <div className="flex items-center justify-center py-12">
