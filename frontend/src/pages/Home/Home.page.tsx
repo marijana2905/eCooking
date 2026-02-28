@@ -35,6 +35,7 @@ const HomePage = () => {
       {
         page: getSearchParam(SEARCH_PARAMS.PAGE) || '1',
         search: debounceSearchTerm || undefined,
+        category: getSearchParam(SEARCH_PARAMS.CATEGORY) || undefined,
         pageSize: '12',
       },
     ],
