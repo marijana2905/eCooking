@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Add01Icon, Note01Icon } from '@hugeicons/core-free-icons';
+import {
+  Add01Icon,
+  FavouriteIcon,
+  Note01Icon,
+} from '@hugeicons/core-free-icons';
 
 import { APP_ROUTES } from '@/config/appRoutes';
 
@@ -32,6 +36,14 @@ const Navbar = () => {
               <NavigationMenuLink render={<Link to={APP_ROUTES.ADD_RECIPE} />}>
                 <HugeiconsIcon icon={Add01Icon} />
                 Add Recipe
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                render={<Link to={APP_ROUTES.LIKED_RECIPES} />}
+              >
+                <HugeiconsIcon icon={FavouriteIcon} />
+                Liked
               </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>
