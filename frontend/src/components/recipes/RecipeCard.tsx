@@ -7,6 +7,8 @@ import { APP_ROUTES } from '@/config/appRoutes';
 
 import type { Recipe } from '@/types/recipes.types';
 
+import { useToggleLikeMutation } from '@/mutations/recipes/useToggleLikeMutation';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,6 +31,7 @@ type Props = {
 
 const RecipeCard = ({ recipe }: Props) => {
   const { theme } = useTheme();
+  const { mutate: toggleLike } = useToggleLikeMutation(recipe.id);
 
   const categories = recipe.categories || [];
   const visibleCategories = categories.slice(0, 2);
@@ -106,8 +109,9 @@ const RecipeCard = ({ recipe }: Props) => {
           <Button
             variant="ghost"
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
-              // TODO: trigger toggle like
+              toggleLike();
             }}
           >
             <HugeiconsIcon
