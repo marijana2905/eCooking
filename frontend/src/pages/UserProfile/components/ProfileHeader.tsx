@@ -96,7 +96,7 @@ const ProfileHeader = ({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 absolute -right-1 -bottom-1 flex size-7 cursor-pointer items-center justify-center rounded-full shadow-sm transition-colors"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 absolute -right-2 -bottom-2 flex size-7 cursor-pointer items-center justify-center rounded-full shadow-sm transition-colors"
             >
               <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
             </button>
@@ -112,7 +112,7 @@ const ProfileHeader = ({
             <span className="text-muted-foreground">@{user.username}</span>
           </div>
           {isOwnProfile && (
-            <Button variant="outline" size="sm" onClick={onEditProfile}>
+            <Button variant="outline" onClick={onEditProfile}>
               <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
               Edit Profile
             </Button>
@@ -126,15 +126,10 @@ const ProfileHeader = ({
         {/* Avatar save/cancel buttons */}
         {isOwnProfile && avatarFile && (
           <div className="mt-2 flex items-center gap-2">
-            <Button
-              size="sm"
-              onClick={handleAvatarSave}
-              disabled={isAvatarSaving}
-            >
+            <Button onClick={handleAvatarSave} disabled={isAvatarSaving}>
               <LoadingSwap isLoading={isAvatarSaving}>Save Avatar</LoadingSwap>
             </Button>
             <Button
-              size="sm"
               variant="outline"
               onClick={handleAvatarCancel}
               disabled={isAvatarSaving}
