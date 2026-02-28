@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
 import { API_ENDPOINTS } from '@/config/endpoints';
@@ -19,6 +20,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Spinner } from '@/components/ui/spinner';
 
 import RecipeForm from './RecipeForm';
+import { APP_ROUTES } from '@/config/appRoutes';
 
 type RecipeFormDialogProps = {
   open: boolean;
@@ -49,6 +51,8 @@ const RecipeFormDialog = ({
   mode,
   recipeId,
 }: RecipeFormDialogProps) => {
+  const navigate = useNavigate();
+
   const isEdit = mode === 'edit';
 
   const {
@@ -69,8 +73,9 @@ const RecipeFormDialog = ({
     const formData = buildFormData(data, image);
 
     mutate(formData, {
-      onSuccess: () => {
+      onSuccess: (recipe) => {
         onOpenChange(false);
+        navigate(APP_ROUTES.RECIPE_DETAILS(recipe.id));
       },
     });
   };

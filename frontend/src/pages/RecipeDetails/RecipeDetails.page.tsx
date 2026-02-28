@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
+  Calendar02Icon,
+  CheckmarkCircle03Icon,
   Clock01Icon,
   Delete02Icon,
   FavouriteIcon,
@@ -29,10 +31,8 @@ import BackButtonLink from '@/components/common/BackButtonLink';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import H1 from '@/components/ui/typography/H1';
-import H2 from '@/components/ui/typography/H2';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const RecipeDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -82,142 +82,193 @@ const RecipeDetailsPage = () => {
       <BlockUI isLoading={isLoading} isError={isError} className="flex-1">
         {recipe && (
           <div className="flex flex-col gap-4">
-            {/* Hero image */}
-            <div className="relative aspect-video max-h-96 w-full overflow-hidden rounded-xl">
-              <img
-                src={recipe.imageUrl || placeholderImage}
-                alt={recipe.title}
-                className="size-full object-cover"
-              />
-            </div>
+            {/* Top section: Info (left) + Image (right) */}
+            <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[7fr_3fr]">
+              {/* Left: Basic info */}
+              <div className="bg-card flex flex-col gap-4 rounded-xl border p-6 shadow-sm">
+                {/* Title */}
+                <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">
+                  {recipe.title}
+                </h1>
 
-            {/* Title and actions */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="flex flex-col gap-2">
-                <H1>{recipe.title}</H1>
-                <p className="text-muted-foreground">{recipe.description}</p>
-              </div>
+                {/* Description */}
+                <p className="text-muted-foreground text-base leading-relaxed">
+                  {recipe.description}
+                </p>
 
-              <div className="flex shrink-0 items-center gap-2">
-                <Button
-                  variant="outline"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleLike();
-                  }}
+                {/* Author */}
+                <Link
+                  to={APP_ROUTES.USER_PROFILE(recipe.author.id)}
+                  className="group flex w-fit items-center gap-3"
                 >
-                  <HugeiconsIcon
-                    icon={FavouriteIcon}
-                    fill={recipe.isLiked ? 'currentColor' : 'none'}
-                    className={cn(recipe.isLiked && 'text-primary')}
-                  />
-                  <span>{recipe.numOfLikes}</span>
-                </Button>
+                  <Avatar className="size-10">
+                    <AvatarImage src={recipe.author.avatarUrl ?? undefined} />
+                    <AvatarFallback>
+                      {recipe.author.firstName[0]}
+                      {recipe.author.lastName[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium underline-offset-4 group-hover:underline">
+                      {recipe.author.fullName}
+                    </span>
+                    <span className="text-muted-foreground text-xs">
+                      @{recipe.author.username}
+                    </span>
+                  </div>
+                </Link>
 
-                {isOwner && (
-                  <>
-                    <Button variant="outline" onClick={() => setEditOpen(true)}>
-                      <HugeiconsIcon icon={PencilEdit01Icon} />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={() => setDeleteOpen(true)}
-                    >
-                      <HugeiconsIcon icon={Delete02Icon} />
-                      Delete
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Meta info */}
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="text-muted-foreground flex items-center gap-2">
-                <HugeiconsIcon icon={Clock01Icon} size={18} />
-                <span>{recipe.prepTime} min</span>
-              </div>
-              <Separator orientation="vertical" className="h-5" />
-              <span className="text-muted-foreground text-sm">
-                {formatDate(recipe.createdAt)}
-              </span>
-            </div>
-
-            {/* Categories */}
-            {recipe.categories.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {recipe.categories.map((cat) => (
-                  <Badge key={cat}>{cat}</Badge>
-                ))}
-              </div>
-            )}
-
-            {/* Tags */}
-            {recipe.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {recipe.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary">
-                    #{tag}
-                  </Badge>
-                ))}
-              </div>
-            )}
-
-            <Separator />
-
-            {/* Ingredients */}
-            <section className="flex flex-col gap-3">
-              <H2>Ingredients</H2>
-              <ul className="list-inside list-disc space-y-1.5">
-                {recipe.ingredients.map((ingredient, idx) => (
-                  <li key={idx} className="text-muted-foreground">
-                    <span className="text-foreground">{ingredient}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <Separator />
-
-            {/* Instructions */}
-            <section className="flex flex-col gap-3">
-              <H2>Instructions</H2>
-              <ol className="list-inside list-decimal space-y-3">
-                {recipe.instructions.map((step, idx) => (
-                  <li key={idx} className="text-muted-foreground">
-                    <span className="text-foreground">{step}</span>
-                  </li>
-                ))}
-              </ol>
-            </section>
-
-            <Separator />
-
-            {/* Author */}
-            <section className="flex flex-col gap-3">
-              <H2>Author</H2>
-              <Link
-                to={APP_ROUTES.USER_PROFILE(recipe.author.id)}
-                className="group flex w-fit items-center gap-3"
-              >
-                <Avatar className="size-10">
-                  <AvatarImage src={recipe.author.avatarUrl ?? undefined} />
-                  <AvatarFallback>
-                    {recipe.author.firstName[0]}
-                    {recipe.author.lastName[0]}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col">
-                  <span className="font-medium underline-offset-4 group-hover:underline">
-                    {recipe.author.fullName}
-                  </span>
-                  <span className="text-muted-foreground text-sm">
-                    @{recipe.author.username}
-                  </span>
+                {/* Meta chips */}
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="bg-muted flex items-center gap-2 rounded-lg px-3 py-1.5">
+                    <HugeiconsIcon
+                      icon={Clock01Icon}
+                      size={16}
+                      className="text-primary"
+                    />
+                    <span className="text-sm font-medium">
+                      {recipe.prepTime} min
+                    </span>
+                  </div>
+                  <div className="bg-muted flex items-center gap-2 rounded-lg px-3 py-1.5">
+                    <HugeiconsIcon
+                      icon={Calendar02Icon}
+                      size={16}
+                      className="text-primary"
+                    />
+                    <span className="text-sm font-medium">
+                      {formatDate(recipe.createdAt)}
+                    </span>
+                  </div>
+                  <div className="bg-muted flex items-center gap-2 rounded-lg px-3 py-1.5">
+                    <HugeiconsIcon
+                      icon={FavouriteIcon}
+                      size={16}
+                      className="text-primary"
+                      fill="currentColor"
+                    />
+                    <span className="text-sm font-medium">
+                      {recipe.numOfLikes}{' '}
+                      {recipe.numOfLikes === 1 ? 'like' : 'likes'}
+                    </span>
+                  </div>
                 </div>
-              </Link>
-            </section>
+
+                {/* Categories & Tags */}
+                <div className="flex flex-col gap-2">
+                  {recipe.categories.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {recipe.categories.map((cat) => (
+                        <Badge key={cat}>{cat}</Badge>
+                      ))}
+                    </div>
+                  )}
+                  {recipe.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {recipe.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary">
+                          #{tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleLike();
+                    }}
+                  >
+                    <HugeiconsIcon
+                      icon={FavouriteIcon}
+                      fill={recipe.isLiked ? 'currentColor' : 'none'}
+                      className={cn(recipe.isLiked && 'text-primary')}
+                    />
+                    {recipe.isLiked ? 'Liked' : 'Like'}
+                  </Button>
+
+                  {isOwner && (
+                    <>
+                      <Button
+                        variant="outline"
+                        onClick={() => setEditOpen(true)}
+                      >
+                        <HugeiconsIcon icon={PencilEdit01Icon} />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={() => setDeleteOpen(true)}
+                      >
+                        <HugeiconsIcon icon={Delete02Icon} />
+                        Delete
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Right: Image */}
+              <div className="order-first lg:order-last">
+                <div className="overflow-hidden rounded-xl">
+                  <img
+                    src={recipe.imageUrl || placeholderImage}
+                    alt={recipe.title}
+                    className="aspect-square w-full object-cover transition-transform duration-300 hover:scale-105"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Ingredients & Instructions side-by-side on large screens */}
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {/* Ingredients Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold">
+                    Ingredients
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-2">
+                  {recipe.ingredients.map((ingredient, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-muted/50 flex items-start gap-3 rounded-lg px-3 py-2.5"
+                    >
+                      <span className="bg-primary/10 text-primary mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-xs">
+                        <HugeiconsIcon icon={CheckmarkCircle03Icon} />
+                      </span>
+                      <span className="text-sm leading-relaxed">
+                        {ingredient}
+                      </span>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Instructions Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold">
+                    Instructions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-3">
+                  {recipe.instructions.map((step, idx) => (
+                    <div key={idx} className="flex gap-4">
+                      <span className="bg-primary text-primary-foreground flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold">
+                        {idx + 1}
+                      </span>
+                      <p className="pt-1 text-sm leading-relaxed">{step}</p>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
       </BlockUI>

@@ -13,8 +13,11 @@ export const useCreateRecipeMutation = () => {
   return useBaseMutation<Recipe, Error, FormData>(
     { path: API_ENDPOINTS.RECIPES },
     {
-      onSuccess: () => {
+      onSuccess: (recipe) => {
         queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.RECIPES] });
+        queryClient.invalidateQueries({
+          queryKey: [API_ENDPOINTS.USER_PROFILE(recipe.author.id)],
+        });
         toast.success('Recipe created successfully!');
       },
       onError: (error) => {
