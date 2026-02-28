@@ -48,6 +48,16 @@ export class UsersController {
     return this.usersService.findById(id);
   }
 
+  @Get(':id/recipes')
+  async getUserRecipes(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Query() query: PaginationQueryDto,
+  ) {
+    const user = req['user'] as JwtPayload;
+    return this.recipesService.findUserRecipes(query, id, user.sub);
+  }
+
   @Patch('me')
   async updateMe(@Req() req: Request, @Body() dto: UpdateUserDto) {
     const user = req['user'] as JwtPayload;
