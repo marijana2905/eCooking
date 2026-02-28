@@ -11,22 +11,28 @@ import {
 
 import { API_ENDPOINTS } from '@/config/endpoints';
 
-import { recipeSchema, type RecipeSchemaType } from '../schema/recipe.schema';
+import { recipeSchema, type RecipeSchemaType } from './schema/recipe.schema';
 
-import { FieldGroup } from '@/components/ui/field';
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
+import { LoadingSwap } from '@/components/ui/loading-swap';
 
 import FormInput from '@/components/form/FormInput';
 import FormTextarea from '@/components/form/FormTextarea';
 import FormComboboxMulti from '@/components/form/FormComboboxMulti';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@/components/ui/input-group';
 
 type RecipeFormProps = {
   defaultValues?: Partial<RecipeSchemaType>;
   defaultImageUrl?: string | null;
   onSubmit: (data: RecipeSchemaType, image?: File) => void;
+  onCancel: () => void;
   isPending: boolean;
   submitLabel: string;
 };
@@ -35,6 +41,7 @@ const RecipeForm = ({
   defaultValues,
   defaultImageUrl,
   onSubmit,
+  onCancel,
   isPending,
   submitLabel,
 }: RecipeFormProps) => {
@@ -114,9 +121,173 @@ const RecipeForm = ({
   return (
     <form onSubmit={form.handleSubmit(handleFormSubmit)}>
       <FieldGroup>
+        <FormInput
+          control={form.control}
+          name="title"
+          label="Title"
+          placeholder="e.g. Chocolate Cake"
+        />
+
+        <FormTextarea
+          control={form.control}
+          name="description"
+          label="Description"
+          placeholder="A short description of the recipe..."
+          maxLength={500}
+        />
+
+        <FormInput
+          control={form.control}
+          name="prepTime"
+          label="Prep Time (minutes)"
+          type="number"
+          min={1}
+          step={1}
+          placeholder="e.g. 30"
+        />
+
+        {/* Categories */}
+        <FormComboboxMulti
+          control={form.control}
+          name="categories"
+          label="Categories"
+          items={categories}
+          getValue={(item) => item}
+          getSearchText={(item) => item}
+          renderItem={(item) => item}
+          renderChip={(value) => value}
+          placeholder="Select categories..."
+        />
+
+        {/* Ingredients */}
+        <Field>
+          <FieldLabel>Ingredients</FieldLabel>
+          <div className="flex flex-col gap-2">
+            {ingredientFields.map((field, index) => (
+              <div key={field.id} className="flex items-center gap-2">
+                <InputGroup>
+                  <InputGroupInput
+                    {...form.register(`ingredients.${index}`)}
+                    placeholder={`Ingredient ${index + 1}`}
+                  />
+                  {ingredientFields.length > 1 && (
+                    <InputGroupAddon align="inline-end">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => removeIngredient(index)}
+                      >
+                        <HugeiconsIcon icon={Cancel01Icon} size={16} />
+                      </Button>
+                    </InputGroupAddon>
+                  )}
+                </InputGroup>
+              </div>
+            ))}
+            {form.formState.errors.ingredients?.message && (
+              <p className="text-destructive text-sm">
+                {form.formState.errors.ingredients.message}
+              </p>
+            )}
+          </div>
+          <div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => appendIngredient('' as never)}
+            >
+              <HugeiconsIcon icon={Add01Icon} size={16} />
+              Add Ingredient
+            </Button>
+          </div>
+        </Field>
+
+        {/* Instructions */}
+        <Field>
+          <FieldLabel>Instructions</FieldLabel>
+          <div className="flex flex-col gap-2">
+            {instructionFields.map((field, index) => (
+              <div key={field.id} className="flex items-center gap-2">
+                <span className="text-muted-foreground">{index + 1}.</span>
+                <InputGroup>
+                  <InputGroupInput
+                    {...form.register(`instructions.${index}`)}
+                    placeholder={`Step ${index + 1}`}
+                  />
+                  {instructionFields.length > 1 && (
+                    <InputGroupAddon align="inline-end">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => removeInstruction(index)}
+                      >
+                        <HugeiconsIcon icon={Cancel01Icon} />
+                      </Button>
+                    </InputGroupAddon>
+                  )}
+                </InputGroup>
+              </div>
+            ))}
+            {form.formState.errors.instructions?.message && (
+              <p className="text-destructive text-sm">
+                {form.formState.errors.instructions.message}
+              </p>
+            )}
+          </div>
+          <div className="w-fit">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-fit"
+              onClick={() => appendInstruction('' as never)}
+            >
+              <HugeiconsIcon icon={Add01Icon} />
+              Add Step
+            </Button>
+          </div>
+        </Field>
+
+        {/* Tags */}
+        <Field>
+          <FieldLabel>Tags</FieldLabel>
+          <div className="flex items-center gap-2">
+            <Input
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              placeholder="Add a tag..."
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAddTag();
+                }
+              }}
+            />
+            <Button type="button" variant="outline" onClick={handleAddTag}>
+              Add
+            </Button>
+          </div>
+
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <Badge
+                  key={tag}
+                  className="cursor-pointer"
+                  onClick={() => handleRemoveTag(tag)}
+                >
+                  #{tag}
+                  <HugeiconsIcon icon={Cancel01Icon} />
+                </Badge>
+              ))}
+            </div>
+          )}
+        </Field>
+
         {/* Image upload */}
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">Image</label>
+        <Field>
+          <FieldLabel>Image</FieldLabel>
           <div className="flex items-center gap-4">
             {imagePreview ? (
               <div className="relative h-32 w-48 overflow-hidden rounded-lg">
@@ -159,173 +330,16 @@ const RecipeForm = ({
               </label>
             )}
           </div>
-        </div>
+        </Field>
 
-        <FormInput
-          control={form.control}
-          name="title"
-          label="Title"
-          placeholder="e.g. Chocolate Cake"
-        />
-
-        <FormTextarea
-          control={form.control}
-          name="description"
-          label="Description"
-          placeholder="A short description of the recipe..."
-          maxLength={500}
-        />
-
-        <FormInput
-          control={form.control}
-          name="prepTime"
-          label="Prep Time (minutes)"
-          type="number"
-          min={1}
-          step={1}
-          placeholder="e.g. 30"
-        />
-
-        {/* Categories */}
-        <FormComboboxMulti
-          control={form.control}
-          name="categories"
-          label="Categories"
-          items={categories}
-          getValue={(item) => item}
-          getSearchText={(item) => item}
-          renderItem={(item) => item}
-          renderChip={(value) => value}
-          placeholder="Select categories..."
-        />
-
-        {/* Ingredients */}
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">Ingredients</label>
-          <div className="flex flex-col gap-2">
-            {ingredientFields.map((field, index) => (
-              <div key={field.id} className="flex items-center gap-2">
-                <Input
-                  {...form.register(`ingredients.${index}`)}
-                  placeholder={`Ingredient ${index + 1}`}
-                />
-                {ingredientFields.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeIngredient(index)}
-                  >
-                    <HugeiconsIcon icon={Cancel01Icon} size={16} />
-                  </Button>
-                )}
-              </div>
-            ))}
-            {form.formState.errors.ingredients?.message && (
-              <p className="text-destructive text-sm">
-                {form.formState.errors.ingredients.message}
-              </p>
-            )}
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="w-fit"
-            onClick={() => appendIngredient('' as never)}
-          >
-            <HugeiconsIcon icon={Add01Icon} size={16} />
-            Add Ingredient
+        <div className="flex items-center justify-end gap-2">
+          <Button type="button" variant="ghost" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isPending}>
+            <LoadingSwap isLoading={isPending}>{submitLabel}</LoadingSwap>
           </Button>
         </div>
-
-        {/* Instructions */}
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">Instructions</label>
-          <div className="flex flex-col gap-2">
-            {instructionFields.map((field, index) => (
-              <div key={field.id} className="flex items-start gap-2">
-                <span className="text-muted-foreground mt-2 text-sm font-medium">
-                  {index + 1}.
-                </span>
-                <Input
-                  {...form.register(`instructions.${index}`)}
-                  placeholder={`Step ${index + 1}`}
-                />
-                {instructionFields.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeInstruction(index)}
-                  >
-                    <HugeiconsIcon icon={Cancel01Icon} size={16} />
-                  </Button>
-                )}
-              </div>
-            ))}
-            {form.formState.errors.instructions?.message && (
-              <p className="text-destructive text-sm">
-                {form.formState.errors.instructions.message}
-              </p>
-            )}
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="w-fit"
-            onClick={() => appendInstruction('' as never)}
-          >
-            <HugeiconsIcon icon={Add01Icon} size={16} />
-            Add Step
-          </Button>
-        </div>
-
-        {/* Tags */}
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">Tags</label>
-          <div className="flex items-center gap-2">
-            <Input
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              placeholder="Add a tag..."
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleAddTag();
-                }
-              }}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleAddTag}
-            >
-              Add
-            </Button>
-          </div>
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="secondary"
-                  className="cursor-pointer"
-                  onClick={() => handleRemoveTag(tag)}
-                >
-                  #{tag}
-                  <HugeiconsIcon icon={Cancel01Icon} size={12} />
-                </Badge>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <Button type="submit" disabled={isPending} className="w-full">
-          {isPending ? <Spinner /> : submitLabel}
-        </Button>
       </FieldGroup>
     </form>
   );

@@ -12,8 +12,6 @@ import RegisterPage from '@/pages/Register';
 import NotFoundPage from '@/pages/NotFound';
 import HomePage from '@/pages/Home';
 import RecipeDetailsPage from '@/pages/RecipeDetails';
-import CreateRecipePage from '@/pages/CreateRecipe';
-import EditRecipePage from '@/pages/EditRecipe';
 import LikedRecipesPage from '@/pages/LikedRecipes';
 import UserProfilePage from '@/pages/UserProfile';
 
@@ -37,9 +35,7 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { path: '/', element: <HomePage /> },
-          { path: '/recipes/add', element: <CreateRecipePage /> },
           { path: '/recipes/:id', element: <RecipeDetailsPage /> },
-          { path: '/recipes/:id/edit', element: <EditRecipePage /> },
           { path: '/liked', element: <LikedRecipesPage /> },
           { path: '/users/:id', element: <UserProfilePage /> },
         ],

@@ -11,8 +11,7 @@ import {
 
 import { API_ENDPOINTS } from '@/config/endpoints';
 import { APP_ROUTES } from '@/config/appRoutes';
-import { cn } from '@/lib/utils';
-import { formatDate } from '@/lib/utils';
+import { cn, formatDate } from '@/lib/utils';
 
 import { useAuthUser } from '@/stores/auth.store';
 
@@ -25,6 +24,7 @@ import { useDeleteRecipeMutation } from '@/mutations/recipes/useDeleteRecipeMuta
 
 import BlockUI from '@/components/common/ui-states/BlockUI';
 import DeleteConfirmDialog from '@/components/common/DeleteConfirmDialog';
+import RecipeFormDialog from '@/components/recipes/RecipeFormDialog';
 import BackButtonLink from '@/components/common/BackButtonLink';
 
 import { Badge } from '@/components/ui/badge';
@@ -41,6 +41,7 @@ const RecipeDetailsPage = () => {
   const { theme } = useTheme();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   const {
     data: recipe,
@@ -115,11 +116,7 @@ const RecipeDetailsPage = () => {
 
                 {isOwner && (
                   <>
-                    <Button
-                      variant="outline"
-                      render={<Link to={APP_ROUTES.EDIT_RECIPE(recipe.id)} />}
-                      nativeButton={false}
-                    >
+                    <Button variant="outline" onClick={() => setEditOpen(true)}>
                       <HugeiconsIcon icon={PencilEdit01Icon} />
                       Edit
                     </Button>
@@ -233,6 +230,15 @@ const RecipeDetailsPage = () => {
         onConfirm={handleDelete}
         isLoading={isDeleting}
       />
+
+      {isOwner && (
+        <RecipeFormDialog
+          mode="edit"
+          recipeId={id!}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+        />
+      )}
     </div>
   );
 };
