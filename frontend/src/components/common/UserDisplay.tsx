@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { getUserFullName } from '@/lib/utils';
 
 import { APP_ROUTES } from '@/config/appRoutes';
 
@@ -20,7 +19,7 @@ const UserDisplay = ({ user, link }: UserDisplayProps) => {
         <UserAvatar user={user} />
         <div className="flex flex-col text-sm">
           <span className="underline-offset-4 group-hover:underline">
-            {getUserFullName(user)}
+            {user.fullName}
           </span>
           <span className="text-muted-foreground">@{user.username}</span>
         </div>
@@ -32,7 +31,7 @@ const UserDisplay = ({ user, link }: UserDisplayProps) => {
   if (link) {
     return (
       <Link
-        to={APP_ROUTES.USER_DETAILS(user.id)}
+        to={APP_ROUTES.USER_PROFILE(user.id)}
         className="group flex w-full gap-2"
       >
         {content}
