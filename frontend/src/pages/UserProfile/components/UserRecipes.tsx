@@ -3,58 +3,65 @@ import { useQuery } from '@tanstack/react-query';
 import { API_ENDPOINTS } from '@/config/endpoints';
 import { SEARCH_PARAMS } from '@/config/searchParams';
 
+import type { Recipe } from '@/types/recipes.types';
+import type { PaginationResponse } from '@/types/paginationResponse.type';
+
 import useSearchParams from '@/hooks/useSearchParams';
 
-import type { PaginationResponse } from '@/types/paginationResponse.type';
-import type { Recipe } from '@/types/recipes.types';
-
-import H1 from '@/components/ui/typography/H1';
 import BlockUI from '@/components/common/ui-states/BlockUI';
 import PaginationBar from '@/components/common/PaginationBar';
 import RecipeCard from '@/components/recipes/RecipeCard';
+import H2 from '@/components/ui/typography/H2';
 
-const LikedRecipesPage = () => {
+type UserRecipesProps = {
+  userId: string;
+};
+
+const UserRecipes = ({ userId }: UserRecipesProps) => {
   const { getSearchParam } = useSearchParams();
 
-  const { data, isLoading, isRefetching, isError } = useQuery<
-    PaginationResponse<Recipe>
-  >({
+  const {
+    data: recipes,
+    isLoading,
+    isRefetching,
+    isError,
+  } = useQuery<PaginationResponse<Recipe>>({
     queryKey: [
-      API_ENDPOINTS.LIKED_RECIPES,
+      API_ENDPOINTS.USER_RECIPES(userId),
       {
         page: getSearchParam(SEARCH_PARAMS.PAGE) || '1',
         pageSize: '12',
       },
     ],
+    enabled: !!userId,
   });
 
   return (
-    <div className="flex h-full flex-col gap-4 space-y-4">
-      <H1>Liked Recipes ({data?.total || 0})</H1>
+    <div className="flex flex-col gap-4">
+      <H2>Recipes ({recipes?.total || 0})</H2>
 
       <BlockUI
         isLoading={isLoading}
         isRefetching={isRefetching}
         isError={isError}
-        isEmpty={!data || data.data.length === 0}
-        className="flex-1"
+        isEmpty={!recipes || recipes.data.length === 0}
       >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {data?.data.map((recipe) => (
+          {recipes?.data.map((recipe) => (
             <RecipeCard key={recipe.id} recipe={recipe} />
           ))}
         </div>
       </BlockUI>
 
-      {data && (
+      {recipes && (
         <PaginationBar
-          currentPage={data.page}
-          pageSize={data.pageSize}
-          totalItems={data.total}
+          currentPage={recipes.page}
+          pageSize={recipes.pageSize}
+          totalItems={recipes.total}
         />
       )}
     </div>
   );
 };
 
-export default LikedRecipesPage;
+export default UserRecipes;

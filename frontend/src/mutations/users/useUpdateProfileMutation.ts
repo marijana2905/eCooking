@@ -19,9 +19,9 @@ export const useUpdateProfileMutation = () => {
   return useBaseMutation<User, Error, UpdateProfileVariables>(
     { path: API_ENDPOINTS.UPDATE_ME, method: 'PATCH' },
     {
-      onSuccess: () => {
+      onSuccess: (user) => {
         queryClient.invalidateQueries({
-          queryKey: [API_ENDPOINTS.MY_RECIPES],
+          queryKey: [API_ENDPOINTS.USER_PROFILE(user.id)],
         });
         toast.success('Profile updated successfully!');
       },

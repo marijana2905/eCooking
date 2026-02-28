@@ -13,9 +13,9 @@ export const useUpdateAvatarMutation = () => {
   return useBaseMutation<User, Error, FormData>(
     { path: API_ENDPOINTS.USER_AVATAR, method: 'PUT' },
     {
-      onSuccess: () => {
+      onSuccess: (user) => {
         queryClient.invalidateQueries({
-          queryKey: [API_ENDPOINTS.MY_RECIPES],
+          queryKey: [API_ENDPOINTS.USER_PROFILE(user.id)],
         });
         toast.success('Avatar updated successfully!');
       },

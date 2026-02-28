@@ -85,7 +85,7 @@ const RecipeDetailsPage = () => {
             {/* Top section: Info (left) + Image (right) */}
             <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[7fr_3fr]">
               {/* Left: Basic info */}
-              <div className="bg-card flex flex-col gap-4 rounded-xl border p-6 shadow-sm">
+              <div className="bg-card flex h-full flex-col gap-4 rounded-xl border p-6 shadow-sm">
                 {/* Title */}
                 <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">
                   {recipe.title}
@@ -175,7 +175,7 @@ const RecipeDetailsPage = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2">
+                <div className="mt-auto ml-auto flex items-center gap-2">
                   <Button
                     variant="outline"
                     onClick={(e) => {
