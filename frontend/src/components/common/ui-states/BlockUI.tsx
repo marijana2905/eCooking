@@ -3,8 +3,8 @@ import { cn } from '@/lib/utils';
 
 import { LoadingSwap } from '@/components/ui/loading-swap';
 
-import EmptyState from '@/components/common/EmptyState';
-import ErrorState from '@/components/common/ErrorState';
+import EmptyState from '@/components/common/ui-states/EmptyState';
+import ErrorState from '@/components/common/ui-states/ErrorState';
 
 type StateOverrides = {
   empty?: ReactNode;
@@ -14,6 +14,7 @@ type StateOverrides = {
 
 type Props = {
   isLoading: boolean;
+  isRefetching?: boolean;
   isError?: boolean | unknown;
   isEmpty?: boolean;
   emptyContent?: ReactNode;
@@ -26,6 +27,7 @@ type Props = {
 
 const BlockUI = ({
   isLoading,
+  isRefetching,
   isError = false,
   isEmpty = false,
   emptyContent,
@@ -65,7 +67,11 @@ const BlockUI = ({
     );
   }
 
-  return <div className={cn('w-full', className)}>{children}</div>;
+  return (
+    <div className={cn('w-full', isRefetching && 'opacity-75', className)}>
+      {children}
+    </div>
+  );
 };
 
 export default BlockUI;

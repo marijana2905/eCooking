@@ -4,6 +4,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { JwtGlobalModule } from './jwt/jwt.module';
 import { AuthModule } from './auth/auth.module';
+import { RecipesModule } from './recipes/recipes.module';
+import { UsersModule } from './users/users.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -20,6 +23,9 @@ import { AuthModule } from './auth/auth.module';
     }),
     JwtGlobalModule,
     AuthModule,
+    RecipesModule,
+    UsersModule,
+    CloudinaryModule,
   ],
 })
 export class AppModule {}
