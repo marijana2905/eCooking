@@ -12,16 +12,17 @@ import BlockUI from '@/components/common/ui-states/BlockUI';
 import SearchInput from '@/components/common/SearchInput';
 import PaginationBar from '@/components/common/PaginationBar';
 import RecipeCard from '@/components/recipes/RecipeCard';
+import RecipeFormDialog from '@/components/recipes/RecipeFormDialog';
 import CategoryFilters from './components/CategoryFilters';
 import { Button } from '@/components/ui/button';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Add01Icon } from '@hugeicons/core-free-icons';
-import { Link } from 'react-router-dom';
-import { APP_ROUTES } from '@/config/appRoutes';
 
 const HomePage = () => {
   const { getSearchParam, setSearchParam, removeSearchParam } =
     useSearchParams();
+
+  const [createOpen, setCreateOpen] = useState(false);
 
   const [debounceSearchTerm, setDebounceSearchTerm] = useState(
     getSearchParam(SEARCH_PARAMS.SEARCH) || '',
@@ -35,6 +36,7 @@ const HomePage = () => {
       {
         page: getSearchParam(SEARCH_PARAMS.PAGE) || '1',
         search: debounceSearchTerm || undefined,
+        category: getSearchParam(SEARCH_PARAMS.CATEGORY) || undefined,
         pageSize: '12',
       },
     ],
@@ -54,10 +56,7 @@ const HomePage = () => {
           onDebouncedChange={(value) => setDebounceSearchTerm(value)}
         />
 
-        <Button
-          render={<Link to={APP_ROUTES.ADD_RECIPE} />}
-          nativeButton={false}
-        >
+        <Button onClick={() => setCreateOpen(true)}>
           <HugeiconsIcon icon={Add01Icon} />
           Add Recipe
         </Button>
@@ -86,6 +85,12 @@ const HomePage = () => {
           totalItems={data.total}
         />
       )}
+
+      <RecipeFormDialog
+        mode="create"
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+      />
     </div>
   );
 };

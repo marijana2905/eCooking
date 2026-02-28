@@ -7,7 +7,7 @@ import {
 
 export const sidebarLinks = [
   { label: 'Recipes', to: '/', icon: HomeIcon },
-  { label: 'Add Recipe', to: '/recipes/create', icon: PlusSignIcon },
+  { label: 'Add Recipe', to: '/recipes/add', icon: PlusSignIcon },
   { label: 'Liked', to: '/liked', icon: FavouriteIcon },
   { label: 'Profile', to: '/users', icon: UserIcon },
 ];

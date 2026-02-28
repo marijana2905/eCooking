@@ -1,26 +1,21 @@
 import { useMemo } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { StarIcon } from '@hugeicons/core-free-icons';
+import { useNavigate } from 'react-router-dom';
 
-import { navigateTo } from '@/lib/navigation';
-import { cn, getAvatarFallback, getUserFullName } from '@/lib/utils';
+import { cn, getAvatarFallback } from '@/lib/utils';
 
-import type { BoardMember } from '@/types/auth.types';
+import { APP_ROUTES } from '@/config/appRoutes';
+
+import type { User } from '@/types/auth.types';
 
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
 } from '@/components/ui/tooltip';
-import {
-  Avatar,
-  AvatarBadge,
-  AvatarFallback,
-  AvatarImage,
-} from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 type UserAvatarProps = {
-  user: BoardMember;
+  user: User;
   size?: number;
   className?: string;
   showTooltip?: boolean;
@@ -32,6 +27,8 @@ const UserAvatar = ({
   className,
   showTooltip = false,
 }: UserAvatarProps) => {
+  const navigate = useNavigate();
+
   const avatar = useMemo(
     () => (
       <Avatar
@@ -42,22 +39,14 @@ const UserAvatar = ({
         )}
         onClick={(e) => {
           e.stopPropagation();
-          navigateTo(`/users/${user.id}`);
+          navigate(APP_ROUTES.USER_PROFILE(user.id));
         }}
       >
-        <AvatarImage
-          src={user.avatarUrl}
-          alt={`${getUserFullName(user)} avatar`}
-        />
+        <AvatarImage src={user.avatarUrl} alt={`${user.fullName} avatar`} />
         <AvatarFallback>{getAvatarFallback(user)}</AvatarFallback>
-        {user.role && user.role === 'ADMIN' && (
-          <AvatarBadge className="left-0 ring-1">
-            <HugeiconsIcon icon={StarIcon} />
-          </AvatarBadge>
-        )}
       </Avatar>
     ),
-    [size, className, user],
+    [size, className, user, navigate],
   );
 
   if (!showTooltip) {

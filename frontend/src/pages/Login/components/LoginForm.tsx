@@ -3,6 +3,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
+import { APP_ROUTES } from '@/config/appRoutes';
+
 import { useAuthActions } from '@/stores/auth.store';
 
 import { loginSchema, type LoginSchemaType } from '../schema/login.schema';
@@ -37,7 +39,7 @@ const LoginForm = () => {
         setUser(response.user);
 
         toast.success('Login successful!');
-        navigate('/boards');
+        navigate(APP_ROUTES.HOME);
       },
     });
   }

@@ -5,7 +5,8 @@ export const APP_ROUTES = {
   HOME: '/',
 
   RECIPE_DETAILS: (recipeId: string) => `/recipes/${recipeId}`,
-  ADD_RECIPE: '/recipes/add',
+
+  LIKED_RECIPES: '/liked',
 
   USER_PROFILE: (userId: string) => `/users/${userId}`,
 };

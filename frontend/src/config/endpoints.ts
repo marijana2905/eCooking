@@ -4,8 +4,15 @@ export const API_ENDPOINTS = {
   REFRESH_TOKEN: '/auth/refresh',
   LOGOUT: '/auth/logout',
 
-  RECIPES: '/recipes', // paginted with search and filter for category
+  RECIPES: '/recipes',
   RECIPE_DETAILS: (recipeId: string) => `/recipes/${recipeId}`,
+  RECIPE_LIKE: (recipeId: string) => `/recipes/${recipeId}/like`,
 
   CATEGORIES: '/recipes/categories',
+
+  LIKED_RECIPES: '/users/me/liked-recipes',
+  UPDATE_ME: '/users/me',
+  USER_AVATAR: '/users/avatar',
+  USER_PROFILE: (userId: string) => `/users/${userId}`,
+  USER_RECIPES: (userId: string) => `/users/${userId}/recipes`,
 };
