@@ -1,22 +1,92 @@
 # eCooking
 
-Aplikacija za deljenje recepata i kuvanje.
+Aplikacija za deljenje recepata, kuvanje i interakciju između korisnika. Korisnici mogu da objavljuju recepte, pregledaju sadržaj drugih korisnika, ostavljaju lajkove, prate profile korisnika i upravljaju svojim receptima.
+
+## Opis projekta
+
+`eCooking` je web aplikacija koja omogućava korisnicima da:
+
+- kreiraju i dele recepte,
+- pregledaju recepte drugih korisnika,
+- čuvaju omiljene recepte,
+- prate profile korisnika,
+- se prijavljuju i registruju sa JWT autentifikacijom,
+- učitavaju slike recepata preko Cloudinary servisa.
+
+## Tehnologije koje su korišćene
+
+### Frontend
+
+- React
+- Vite
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- React Router
+- TanStack React Query
+- Zustand
+- Axios
+- Zod + React Hook Form
+
+### Backend
+
+- NestJS
+- Node.js
+- TypeScript
+- JWT autentifikacija
+- Mongoose
+- Class Validator / Class Transformer
+- Express
+- bcrypt za hashovanje lozinki
+
+### Baza podataka
+
+- MongoDB
+- Mongoose ODM
+- Podaci o korisnicima, receptima i tokenima čuvaju se u MongoDB kolekcijama
+
+### Dodatni alati i servisi
+
+- Docker i Docker Compose
+- Nginx za frontend servis
+- Cloudinary za upload i skladištenje slika
+- ESLint i Prettier
+- Jest i Supertest za testiranje
+
+## Struktura projekta
+
+- `backend/` - NestJS API i poslovna logika
+- `frontend/` - React aplikacija
+- `docker-compose.yml` - konfiguracija Docker kontejnera
+
+## Podešavanje environment varijabli
+
+U backend projektu postoji primer konfiguracije u fajlu `backend/.env.example`. Potrebno je da napravite kopiju i da je popunite podacima za vašu lokalnu ili udaljenu instancu:
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+Najvažniji parametri su:
+
+- `MONGO_URI`
+- `MONGO_DB_NAME`
+- `JWT_SECRET`
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
 
 ## Pokretanje aplikacije pomoću Docker-a
 
-1. Kopirajte `.env.example` fajl i imenujte kopiju kao `.env` fajl. Možete koristiti komandu:
-   ```bash
-   cp .env.example .env
-   ```
-2. Otvorite `.env` fajl i unesite prave podatke za `MONGODB_URI`, `JWT_SECRET`, kao i Cloudinary kredencijale u skladu sa Vašim parametrima.
-3. Za pokretanje frontenda i backenda sa docker mrežom, izvršite sledeću komandu u root folderu:
+1. Kopirajte `backend/.env.example` u `backend/.env` i popunite vrednosti za bazu, JWT i Cloudinary.
+2. U root folderu projekta pokrenite:
    ```bash
    docker compose up --build -d
    ```
-   Ova komanda će izgraditi _production-ready_ slike (preko Node.js i Nginx-a) i podići ih unutar zajedničke `eCooking` mreže.
-   Kada se kontejneri podignu, frontend aplikaciji možete pristupiti na `http://localhost`, a backend-u na `http://localhost:3000`.
+3. Ova komanda će izgraditi i pokrenuti frontend i backend kontejnere unutar zajedničke mreže `eCooking`.
+4. Frontend aplikacija je dostupna na `http://localhost`, a backend na `http://localhost:3000`.
 
-Da zaustavite rad aplikacije i ugasite generisanu docker mrežu, dovoljno je da pokrenete:
+Da zaustavite aplikaciju i obrišete Docker mrežu:
 
 ```bash
 docker compose down
